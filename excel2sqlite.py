@@ -7,23 +7,22 @@ import xdrlib,sys
 import os
 
 def main():
-    sqlfile = "yoinfo.db"
-    con = sqlite3.connect(sqlfile)
+    print('input the output sqlite database file name:')
+    sqlfile = input()
+    con = sqlite3.connect(sqlfile + '.db')
     c = con.cursor()
-    createsql = """create table yoinfo(
-        class integer, 
-        stunum integer,
-        name text,
-        major text,
-        field text,
+    createsql = 'create table ' + sqlfile + """  (
+        name text, 
         gender text,
-        boss text)"""
+        birthday text,
+        age integer)"""
     c.execute(createsql)
 #需要批量导入的excel的目录中的文件列表
-    listfile = os.listdir("/home/li/Documents/stuinfo")
+    exceldir = '/home/li/Documents/testexcel'
+    listfile = os.listdir(exceldir)
     for file in listfile:
         #依次导入每个excel文件的数据
-        edata = xlrd.open_workbook(os.path.join('/home/li/Documents/stuinfo',file))
+        edata = xlrd.open_workbook(os.path.join(exceldir,file))
         #使用excel的第一个sheet
         table = edata.sheets()[0]
         nrow = table.nrows
@@ -33,7 +32,7 @@ def main():
             #删除第一列的序号
             del rowdata[0]
             n = n + 1
-            c.execute('insert into yoinfo values (?,?,?,?,?,?,?)', rowdata)
+            c.execute('insert into ' + sqlfile + ' values (?,?,?,?)', rowdata)
     con.commit()
     c.close()
 
