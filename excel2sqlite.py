@@ -49,6 +49,12 @@ def main():
             c.execute('insert into ' + sqlfile + ' values (?,?,?,?)', rowdata)
     con.commit()
     c.close()
+#save some parameter to the config file
+    config = open('config', 'w')
+    config.writelines('SQLname:' + sqlfile + '\n')
+    config.writelines('columnvalue:' + ','.join(columnname) + '\n')
+    config.writelines('sqlfield:' + ','.join(sqlfield) + '\n')
+    config.close()
 
 if __name__=="__main__":
     main()
