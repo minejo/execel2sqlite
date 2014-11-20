@@ -9,21 +9,34 @@ import pypinyin
 def convertpinyin(list):
     sqlfield = []
     for value in list:
-        field = pypinyin.slug(value)
+        field = pypinyin.slug(value, separator = '')
         sqlfield.append(field)
     return sqlfield
+
+def getcreatesql(sqlvaluelist, sqlfile):
+    allfield = ''
+    ncolumn = len(sqlvaluelist)
+    for covalue in sqlvaluelist:
+        if sqlvaluelist.index(covalue) < ncolumn - 1:
+            allfield = allfield + covalue + ' text,\n'
+        else:
+            allfield = allfield + covalue + ' text'
+    createsql = 'create table ' + sqlfile + ' (' + allfield + ')'
+    return createsql
+
+
 
 def main():
     print('input the output sqlite database file name:')
     sqlfile = input()
     con = sqlite3.connect(sqlfile + '.db')
     c = con.cursor()
-    createsql = 'create table ' + sqlfile + """  (
-        name text,
-        gender text,
-        birthday text,
-        age integer)"""
-    c.execute(createsql)
+   # createsql = 'create table ' + sqlfile + """  (
+    #    name text,
+    #    gender text,
+    #    birthday text,
+    #    age integer)"""
+  #  c.execute(createsql)
 #需要批量导入的excel的目录中的文件列表
     exceldir = '/home/li/Documents/testexcel'
     listfile = os.listdir(exceldir)
@@ -40,13 +53,15 @@ def main():
             checkflag = 1
             print(columnname)
             print(sqlfield)
+            sql = getcreatesql(sqlfield, sqlfile)
+            print(sql)
+            c.execute(sql)
         n = 1
         while n < nrow:
             rowdata = table.row_values(n)
-            #删除第一列的序号
-            del rowdata[0]
+          #  del rowdata[0]
             n = n + 1
-            c.execute('insert into ' + sqlfile + ' values (?,?,?,?)', rowdata)
+            c.execute('insert into ' + sqlfile + ' values (?,?,?,?,?)', rowdata)
     con.commit()
     c.close()
 #save some parameter to the config file
