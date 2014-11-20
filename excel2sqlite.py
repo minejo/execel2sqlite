@@ -3,8 +3,15 @@
 ###   Author: Jonathan Li<jonathan.swjtu@gmail.com>  ###
 import xlrd
 import sqlite3
-import xdrlib,sys
 import os
+import pypinyin
+
+def convertpinyin(list):
+    sqlfield = []
+    for value in list:
+        field = pypinyin.slug(value)
+        sqlfield.append(field)
+    return sqlfield
 
 def main():
     print('input the output sqlite database file name:')
@@ -12,7 +19,7 @@ def main():
     con = sqlite3.connect(sqlfile + '.db')
     c = con.cursor()
     createsql = 'create table ' + sqlfile + """  (
-        name text, 
+        name text,
         gender text,
         birthday text,
         age integer)"""
@@ -20,12 +27,19 @@ def main():
 #需要批量导入的excel的目录中的文件列表
     exceldir = '/home/li/Documents/testexcel'
     listfile = os.listdir(exceldir)
+    checkflag = 0
     for file in listfile:
         #依次导入每个excel文件的数据
         edata = xlrd.open_workbook(os.path.join(exceldir,file))
         #使用excel的第一个sheet
         table = edata.sheets()[0]
         nrow = table.nrows
+        if checkflag == 0:
+            columnname = table.row_values(0)
+            sqlfield = convertpinyin(columnname)
+            checkflag = 1
+            print(columnname)
+            print(sqlfield)
         n = 1
         while n < nrow:
             rowdata = table.row_values(n)
