@@ -7,6 +7,7 @@ import os
 import pypinyin
 
 def convertpinyin(list):
+    """convert all talbe head value from chinese to chinese pinyin and save in a list"""
     sqlfield = []
     for value in list:
         field = pypinyin.slug(value, separator = '')
@@ -14,6 +15,7 @@ def convertpinyin(list):
     return sqlfield
 
 def getcreatesql(sqlvaluelist, sqlfile):
+    """according to the table head pinyin, we can generate the create table sql sentence"""
     allfield = ''
     ncolumn = len(sqlvaluelist)
     for covalue in sqlvaluelist:
@@ -25,6 +27,7 @@ def getcreatesql(sqlvaluelist, sqlfile):
     return createsql
 
 def getinsertsql(sqlvaluelist, sqlfile):
+    """generate the insert sql sentence for each data."""
     ncolumn = len(sqlvaluelist)
     insertfield = ['?'] * ncolumn
     insertsql = 'insert into ' + sqlfile + ' values (' + ','.join(insertfield) + ')'
@@ -44,6 +47,7 @@ def main():
 #需要批量导入的excel的目录中的文件列表
     exceldir = '/home/li/Documents/testexcel'
     listfile = os.listdir(exceldir)
+    #used to determine whether it is the first time to access an excel file.
     checkflag = 0
     for file in listfile:
         #依次导入每个excel文件的数据
@@ -55,10 +59,10 @@ def main():
             columnname = table.row_values(0)
             sqlfield = convertpinyin(columnname)
             checkflag = 1
-            print(columnname)
-            print(sqlfield)
+           # print(columnname)
+           # print(sqlfield)
             sql = getcreatesql(sqlfield, sqlfile)
-            print(sql)
+           # print(sql)
             c.execute(sql)
         n = 1
         while n < nrow:
@@ -66,7 +70,7 @@ def main():
           #  del rowdata[0]
             n = n + 1
             insertsql = getinsertsql(sqlfield, sqlfile)
-            print(insertsql)
+           # print(insertsql)
             c.execute(insertsql, rowdata)
     con.commit()
     c.close()
