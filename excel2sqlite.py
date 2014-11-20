@@ -24,7 +24,11 @@ def getcreatesql(sqlvaluelist, sqlfile):
     createsql = 'create table ' + sqlfile + ' (' + allfield + ')'
     return createsql
 
-
+def getinsertsql(sqlvaluelist, sqlfile):
+    ncolumn = len(sqlvaluelist)
+    insertfield = ['?'] * ncolumn
+    insertsql = 'insert into ' + sqlfile + ' values (' + ','.join(insertfield) + ')'
+    return insertsql
 
 def main():
     print('input the output sqlite database file name:')
@@ -61,7 +65,9 @@ def main():
             rowdata = table.row_values(n)
           #  del rowdata[0]
             n = n + 1
-            c.execute('insert into ' + sqlfile + ' values (?,?,?,?,?)', rowdata)
+            insertsql = getinsertsql(sqlfield, sqlfile)
+            print(insertsql)
+            c.execute(insertsql, rowdata)
     con.commit()
     c.close()
 #save some parameter to the config file
